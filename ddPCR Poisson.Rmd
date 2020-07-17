@@ -27,6 +27,24 @@ library(data.table)
 In probability theory and statistics, the Poisson distribution, named after French mathematician Siméon Denis Poisson, is a discrete probability distribution that expresses the probability of a given number of events occurring in a fixed interval of time or space if these events occur with a known constant mean rate and independently of the time since the last event. The Poisson distribution can also be used for the number of events in other specified intervals such as distance, area or volume. 
 
 $$ \frac{e^{-\lambda}\lambda^x}{x!} $$
+# Low Concentration Example
+
+When there are far fewer molecules than partitions (for example, 500 molecules or less in 20,000 partitions), it is relatively easy to see how the ddPCR approach enables accurate quantification. Figure 3.3 shows a sample that contains six target DNA molecules.  If the entire sample is converted into droplets, we will expect to find exactly six droplets  that contain template, since it is statistically highly unlikely that a single droplet will start with more than one target molecule.
+
+```{r}
+
+volume <- 20 #micro liters
+copies.target <- 6
+
+concentration = copies.target/volume
+
+print(concentration)
+
+
+```
+
+
+
 # Intermediate Concentration Example
 
 Consider the case in which there are 5,000 target molecules in 20,000 droplets (5,000 targets in 20 μl = 250 copies/μl = 0.25 CPD). Random partitioning of target molecules into droplets will lead to some droplets with 2, 3, or even 4 copies, and correspondingly more than 75% of the droplets will have zero copies. Poisson statistics tells us exactly how many droplets to expect in each category. Table 3.1 shows the expected percentage of droplets in each category. Note that in ddPCR, each droplet is distinguished as either empty/negative (zero targets) or occupied/positive (one or more targets). For the 0.25 CPD case, 78% (not 75%) of the droplets will be negative and 22% (not 25%) will be positive on average. Since Poisson statistics arise in multiple different contexts in ddPCR, we describe this phenomenon as “partitioning statistics.
