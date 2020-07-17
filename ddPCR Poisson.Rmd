@@ -1,0 +1,121 @@
+---
+title: "ddPCR Poisson Statistics"
+author: "Adam Little"
+date: "7/17/2020"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+
+#### The purpose of this project is to recreate the Poisson statistics listed in Bio Rad's Droplet Digital PCR Application Guide.
+
+http://www.bio-rad.com/webroot/web/pdf/lsr/literature/Bulletin_6407.pdf
+
+These statistics are shown in Chapter 3: Absolute Quantification and the Statistics of Droplet Digital™ PCR. This was done to show the underlying mathematics of the Poisson distribution.
+
+```{r, message = FALSE, warning=FALSE}
+
+library(prettydoc)
+library(tidyverse)
+library(stats)
+library(data.table)
+
+```
+
+In probability theory and statistics, the Poisson distribution, named after French mathematician Siméon Denis Poisson, is a discrete probability distribution that expresses the probability of a given number of events occurring in a fixed interval of time or space if these events occur with a known constant mean rate and independently of the time since the last event. The Poisson distribution can also be used for the number of events in other specified intervals such as distance, area or volume. 
+
+$$ \frac{e^{-\lambda}\lambda^x}{x!} $$
+# Intermediate Concentration Example
+
+Consider the case in which there are 5,000 target molecules in 20,000 droplets (5,000 targets in 20 μl = 250 copies/μl = 0.25 CPD). Random partitioning of target molecules into droplets will lead to some droplets with 2, 3, or even 4 copies, and correspondingly more than 75% of the droplets will have zero copies. Poisson statistics tells us exactly how many droplets to expect in each category. Table 3.1 shows the expected percentage of droplets in each category. Note that in ddPCR, each droplet is distinguished as either empty/negative (zero targets) or occupied/positive (one or more targets). For the 0.25 CPD case, 78% (not 75%) of the droplets will be negative and 22% (not 25%) will be positive on average. Since Poisson statistics arise in multiple different contexts in ddPCR, we describe this phenomenon as “partitioning statistics.
+
+$$ \frac{e^{-0.25}0.25^x}{x!} $$
+
+
+```{r}
+
+lambda <- 0.25
+
+# Create data table for graph
+x.axis <- as.numeric(vector())
+y.axis <- as.numeric(vector())
+
+
+# Loop thorugh all values of x in the table
+
+for(i in 0:4){
+  pois.prob <- dpois(i, lambda = lambda, log=FALSE)
+  x.axis[i] <- i
+  y.axis[i] <- pois.prob
+  print(pois.prob)
+}
+
+intermediate = data.frame(Targets = x.axis, Percent_Droplets = 100*y.axis)
+
+
+```
+
+```{r}
+
+ggplot(data=intermediate, mapping=aes(x.axis, y.axis)) + 
+  geom_line(color="#024059") +
+  geom_point(color="#04D9D9", size=2) +
+  xlab("Targets") +
+  ylab("% Droplets") +
+  theme_dark()
+
+```
+
+
+$$ \frac{e^{-2.5}2.5^x}{x!} $$
+
+# Advanced Concentration Example
+
+Consider the case in which 50,000 target molecules are present in 20 μl (50,000 targets in 20 μl = 2,500 targets/μl = 2.5 CPD). With an average of 2.5 copies of target/droplet, it’s not immediately obvious that there will be any empty droplets. But Poisson statistics predicts that there will be some empty droplets (1,642 empty droplets) and gives a precise relationship between the average number of copies/droplet and the expected fraction of empty droplets. Table 3.2 shows how many droplets we expect to see with 0, 1, 2, 3, 4, or more copies/droplet when there are on average 2.5 copies of target/droplet, or 50,000 copies in a 20 μl reaction volume.
+
+
+$$ \frac{e^{-2.5}2.5^x}{x!} $$
+
+```{r}
+
+
+lambda <- 2.5
+
+# Create data table for graph
+x.axis <- as.numeric(vector())
+y.axis <- as.numeric(vector())
+
+
+# Loop thorugh all values of x in the table
+
+for(i in 0:11){
+  pois.prob <- dpois(i, lambda = lambda, log=FALSE)
+  x.axis[i] <- i
+  y.axis[i] <- pois.prob
+  print(pois.prob)
+}
+
+advanced = data.frame(Targets = x.axis, Percent_Droplets = 100*y.axis)
+
+
+
+
+```
+
+
+```{r}
+
+ggplot(data=advanced, mapping=aes(x.axis, y.axis)) + 
+  geom_line(color="#024059") +
+  geom_point(color="#04D9D9", size=2) +
+  xlab("Targets") +
+  ylab("% Droplets") +
+  theme_dark()
+
+```
+
+
+
+
